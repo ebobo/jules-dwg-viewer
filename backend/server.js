@@ -46,11 +46,17 @@ app.post('/api/upload', upload.single('dwgfile'), (req, res) => {
       if (stderr) console.error('dwg2svg stderr:', stderr);
 
       if (execErr) {
-        console.error(`Error during DWG to SVG conversion (dwg2svg execFile error): ${execErr.message}`);
-        // Attempt to clean up both files on any execErr
+        // Attempt to clean up both files on any execErr, regardless of the specific error type
         try { fs.unlinkSync(tempInputPath); } catch (e) { if (e.code !== 'ENOENT') console.error('Error deleting temp input DWG on execErr:', e.message); }
         try { fs.unlinkSync(tempOutputPath); } catch (e) { if (e.code !== 'ENOENT') console.error('Error deleting temp output SVG on execErr:', e.message); }
-        return res.status(500).json({ message: `Error during DWG to SVG conversion: ${execErr.message}` });
+
+        if (execErr.code === 'ENOENT') {
+          console.error("DWG conversion error: 'dwg2svg' command not found.");
+          return res.status(500).json({ message: "DWG conversion error: 'dwg2svg' command not found. Please ensure LibreDWG is installed and 'dwg2svg' is in your system's PATH. Refer to the README.md for installation instructions." });
+        } else {
+          console.error(`Error during DWG to SVG conversion (dwg2svg execFile error): ${execErr.message}`);
+          return res.status(500).json({ message: `Error during DWG to SVG conversion: ${execErr.message}` });
+        }
       }
 
       // Check if the output file was actually created

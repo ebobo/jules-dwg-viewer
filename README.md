@@ -15,7 +15,7 @@ The application follows a client-server architecture:
 -   **Node.js:** JavaScript runtime environment.
 -   **Express.js:** Web application framework for Node.js, used for routing and handling API requests.
 -   **Multer:** Middleware for handling `multipart/form-data`, used for file uploads.
--   **Command-Line DWG to SVG Converter:** ( Placeholder - to be replaced with a specific tool like dwg2svg / Teigha File Converter etc. ) An external tool is expected to be called by the backend to perform the DWG to SVG conversion.
+-   **`dwg2svg` (LibreDWG):** The core command-line utility used for converting DWG files to SVG. See "Critical Prerequisite" section below.
 
 ### Frontend
 -   **React:** JavaScript library for building user interfaces.
@@ -23,9 +23,50 @@ The application follows a client-server architecture:
 -   **DOMParser API:** Used to parse SVG strings for layer extraction.
 -   **XMLSerializer API:** Used to serialize modified SVG DOM back to a string.
 
+## Critical Prerequisite: `dwg2svg` (LibreDWG)
+
+For the core functionality of converting .dwg files to .svg, this application relies on the `dwg2svg` command-line utility, which is part of the LibreDWG package. **You must install LibreDWG and ensure `dwg2svg` is in your system's PATH for the backend to work correctly.**
+
+**Installation Instructions:**
+
+*   **Linux (Debian/Ubuntu-based):**
+    ```bash
+    sudo apt-get update
+    sudo apt-get install libredwg-tools
+    # Or for older versions/different naming:
+    # sudo apt-get install dwg2svg
+    ```
+    *(Note: Package names might vary slightly depending on your distribution version. Check your package manager for `libredwg` related packages.)*
+
+*   **Linux (Fedora-based):**
+    ```bash
+    sudo dnf install libredwg
+    # This usually includes dwg2svg. If not, look for libredwg-tools or similar.
+    ```
+
+*   **macOS (using Homebrew):**
+    ```bash
+    brew install libredwg
+    ```
+
+*   **Windows:**
+    LibreDWG is primarily developed for Unix-like systems. For Windows, you might consider:
+    1.  Using Windows Subsystem for Linux (WSL) and installing LibreDWG within your WSL environment.
+    2.  Attempting to compile LibreDWG from source using a compatibility layer like MinGW or Cygwin (this can be complex).
+
+*   **Compiling from Source (All Platforms):**
+    If pre-compiled packages are not available or suitable, you can compile LibreDWG from source. Download the latest release from the [official GNU LibreDWG page](https://www.gnu.org/software/libredwg/) (or its Savannah project page) and follow the compilation instructions (usually involving `./configure`, `make`, `sudo make install`). This typically requires build essentials (gcc, make, etc.) and other development libraries.
+
+**Verify Installation:**
+After installation, open a new terminal window and type:
+```bash
+dwg2svg --version
+```
+If it's installed correctly and in your PATH, you should see version information. If you get a "command not found" error, ensure your PATH environment variable includes the directory where `dwg2svg` was installed.
+
 ## Setup and Running the Application
 
-You will need Node.js and npm installed on your system.
+You will need Node.js and npm installed on your system. **Ensure `dwg2svg` is installed and accessible as described above before proceeding with the backend setup.**
 
 ### 1. Backend Setup
 
@@ -62,4 +103,4 @@ The frontend development server will open automatically in your browser at `http
 -   Use the file input to select a `.dwg` file.
 -   Click "Upload DWG" to upload and view the file.
 
-**Note on DWG Conversion:** The current version uses a placeholder for DWG to SVG conversion on the backend. For full functionality with actual DWG files, this placeholder needs to be replaced with a functional DWG to SVG conversion tool integrated into `backend/server.js`.
+**Note on DWG Conversion:** The backend `server.js` is now configured to use `dwg2svg`. If this tool is not installed or not found in the system PATH, the DWG to SVG conversion will fail. The placeholder note has been removed as the application now directly attempts to use `dwg2svg`.
